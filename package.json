@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "install:all": "npm install --prefix backend && npm install --prefix frontend --legacy-peer-deps",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend --legacy-peer-deps --production=false",
     "start": "concurrently \"npm run server --prefix backend\" \"npm run dev --prefix frontend\"",
     "build": "npm run build --prefix frontend",
     "build:prod": "npm run install:all && npm run build",
