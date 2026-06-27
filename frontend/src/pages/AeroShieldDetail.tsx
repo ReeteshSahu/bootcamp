@@ -34,11 +34,12 @@ interface Vehicle {
 interface AeroShieldDetailProps {
   vehicles: Vehicle[];
   token: string | null;
+  selectedId: string;
+  setSelectedId: (id: string) => void;
 }
 
-const AeroShieldDetail: React.FC<AeroShieldDetailProps> = ({ vehicles, token }) => {
+const AeroShieldDetail: React.FC<AeroShieldDetailProps> = ({ vehicles, token, selectedId, setSelectedId }) => {
   const activeTrucks = vehicles.filter(v => v.status === 'Active');
-  const [selectedId, setSelectedId] = useState<string>('');
   const [purging, setPurging] = useState(false);
   const [flushing, setFlushing] = useState(false);
   const [actionLog, setActionLog] = useState<string[]>([]);
@@ -48,7 +49,7 @@ const AeroShieldDetail: React.FC<AeroShieldDetailProps> = ({ vehicles, token }) 
     if (activeTrucks.length > 0 && !selectedId) {
       setSelectedId(activeTrucks[0].id);
     }
-  }, [activeTrucks, selectedId]);
+  }, [activeTrucks, selectedId, setSelectedId]);
 
   const currentTruck = vehicles.find(v => v.id === selectedId) || activeTrucks[0];
 

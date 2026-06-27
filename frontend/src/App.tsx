@@ -82,6 +82,7 @@ const AppContent: React.FC = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
 
   const wsRef = useRef<WebSocket | null>(null);
 
@@ -305,7 +306,20 @@ const AppContent: React.FC = () => {
           />
         );
       case 'map':
-        return <MapComponent vehicles={vehicles} stations={stations} />;
+        return (
+          <MapComponent 
+            vehicles={vehicles} 
+            stations={stations} 
+            onSelectVehicle={(id) => {
+              setSelectedVehicleId(id);
+              if (user?.role === 'public') {
+                setCurrentTab('map');
+              } else {
+                setCurrentTab('aeroshield');
+              }
+            }}
+          />
+        );
       case 'fleet':
         return (
           <FleetMonitoring 
@@ -313,10 +327,25 @@ const AppContent: React.FC = () => {
             vehicles={vehicles} 
             onAddOrUpdateVehicle={handleAddOrUpdateVehicle}
             onDeleteVehicle={handleDeleteVehicle}
+            onSelectVehicle={(id) => {
+              setSelectedVehicleId(id);
+              if (user?.role === 'public') {
+                setCurrentTab('map');
+              } else {
+                setCurrentTab('aeroshield');
+              }
+            }}
           />
         );
       case 'aeroshield':
-        return <AeroShieldDetail vehicles={vehicles} token={token} />;
+        return (
+          <AeroShieldDetail 
+            vehicles={vehicles} 
+            token={token} 
+            selectedId={selectedVehicleId} 
+            setSelectedId={setSelectedVehicleId} 
+          />
+        );
       case 'predictions':
         return <AIPrediction user={user} token={token} />;
       case 'health':

@@ -33,6 +33,7 @@ interface Station {
 interface MapComponentProps {
   vehicles: Vehicle[];
   stations: Station[];
+  onSelectVehicle: (id: string) => void;
 }
 
 // Static Landmarks along Raipur-Bhilai Industrial Corridor
@@ -45,7 +46,7 @@ const LANDMARKS = [
   { name: "Bhilai Steel Plant Gate 3", lat: 21.1910, lng: 81.3980, type: "industry" }
 ];
 
-const MapComponent: React.FC<MapComponentProps> = ({ vehicles, stations }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ vehicles, stations, onSelectVehicle }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   
@@ -53,6 +54,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ vehicles, stations }) => {
   const vehicleMarkersRef = useRef<Record<string, L.Marker>>({});
   const stationMarkersRef = useRef<Record<string, L.Marker>>({});
   const heatmapCirclesRef = useRef<L.Circle[]>([]);
+
+  // Register global window selector for Leaflet html popup triggers
+  useEffect(() => {
+    (window as any).selectVehicle = (id: string) => {
+      onSelectVehicle(id);
+    };
+    return () => {
+      delete (window as any).selectVehicle;
+    };
+  }, [onSelectVehicle]);
 
   // 1. Initialize Map
   useEffect(() => {
@@ -247,6 +258,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ vehicles, stations }) => {
               <div>Water Tank: <strong class="${trk.water_tank_level < 20 ? 'text-danger' : 'text-secondary'}">${trk.water_tank_level}%</strong></div>
               <div>AeroShield: <strong class="${trk.water_tank_level > 0 && trk.speed > 0 ? 'text-secondary' : 'text-slate-500'}">${trk.water_tank_level > 0 && trk.speed > 0 ? 'Active' : 'Inactive'}</strong></div>
             </div>
+            <div class="mt-2.5 pt-2 border-t dark:border-slate-800 border-slate-100">
+              <button onclick="window.selectVehicle('${trk.id}')" class="w-full text-center py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-[10px] font-black tracking-wider transition">
+                VIEW DIAGNOSTICS
+              </button>
+            </div>
           </div>
         `);
       } else {
@@ -264,6 +280,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ vehicles, stations }) => {
                 <div>Dust: <strong class="${trk.dust_emission && trk.dust_emission > 40 ? 'text-danger' : 'text-slate-400'}">${trk.dust_emission || 0} mg/m³</strong></div>
                 <div>Water Tank: <strong class="${trk.water_tank_level < 20 ? 'text-danger' : 'text-secondary'}">${trk.water_tank_level}%</strong></div>
                 <div>AeroShield: <strong class="${trk.water_tank_level > 0 && trk.speed > 0 ? 'text-secondary' : 'text-slate-500'}">${trk.water_tank_level > 0 && trk.speed > 0 ? 'Active' : 'Inactive'}</strong></div>
+              </div>
+              <div class="mt-2.5 pt-2 border-t dark:border-slate-800 border-slate-100">
+                <button onclick="window.selectVehicle('${trk.id}')" class="w-full text-center py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-[10px] font-black tracking-wider transition">
+                  VIEW DIAGNOSTICS
+                </button>
               </div>
             </div>
           `);

@@ -40,9 +40,10 @@ interface FleetMonitoringProps {
   vehicles: Vehicle[];
   onAddOrUpdateVehicle: (v: Vehicle) => Promise<boolean>;
   onDeleteVehicle: (id: string) => Promise<boolean>;
+  onSelectVehicle: (id: string) => void;
 }
 
-const FleetMonitoring: React.FC<FleetMonitoringProps> = ({ user, vehicles, onAddOrUpdateVehicle, onDeleteVehicle }) => {
+const FleetMonitoring: React.FC<FleetMonitoringProps> = ({ user, vehicles, onAddOrUpdateVehicle, onDeleteVehicle, onSelectVehicle }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   
@@ -197,7 +198,15 @@ const FleetMonitoring: React.FC<FleetMonitoringProps> = ({ user, vehicles, onAdd
                 <div className="flex items-start justify-between border-b dark:border-slate-800 border-slate-100 pb-3 mb-4">
                   <div>
                     <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">{v.plate_number}</span>
-                    <h4 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{v.id}</h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-extrabold text-sm text-slate-800 dark:text-slate-100">{v.id}</h4>
+                      <button
+                        onClick={() => onSelectVehicle(v.id)}
+                        className="text-[9px] px-1.5 py-0.5 bg-primary/10 hover:bg-primary/20 text-primary font-black rounded transition"
+                      >
+                        HMI TELEMETRY
+                      </button>
+                    </div>
                   </div>
                   <span className={`px-2 py-0.5 rounded text-[8px] font-extrabold uppercase ${
                     isMaint 
