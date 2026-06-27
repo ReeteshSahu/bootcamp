@@ -20,6 +20,11 @@ interface Prediction {
   timestamp: string;
 }
 
+const getApiUrl = (path: string) => {
+  const base = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
+  return `${base}${path}`;
+};
+
 interface AIPredictionProps {
   user: { name: string; role: string } | null;
   token: string | null;
@@ -32,7 +37,7 @@ const AIPrediction: React.FC<AIPredictionProps> = ({ user, token }) => {
 
   const fetchPredictions = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/predictions');
+      const response = await fetch(getApiUrl('/api/predictions'));
       const data = await response.json();
       if (response.ok) {
         setPredictions(data);
@@ -53,7 +58,7 @@ const AIPrediction: React.FC<AIPredictionProps> = ({ user, token }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/prediction', {
+      const response = await fetch(getApiUrl('/api/prediction'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

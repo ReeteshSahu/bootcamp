@@ -12,6 +12,19 @@ import HealthImpact from './pages/HealthImpact';
 import Reports from './pages/Reports';
 import { ShieldAlert, X } from 'lucide-react';
 
+const getApiUrl = (path: string) => {
+  const base = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
+  return `${base}${path}`;
+};
+
+const getWsUrl = () => {
+  if (window.location.hostname === 'localhost') {
+    return 'ws://localhost:5000';
+  }
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${window.location.host}`;
+};
+
 interface User {
   name: string;
   email: string;
@@ -107,7 +120,7 @@ const AppContent: React.FC = () => {
   // Fetch initial system states from REST endpoints
   const fetchDashboardData = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/dashboard');
+      const res = await fetch(getApiUrl('/api/dashboard'));
       const data = await res.json();
       if (res.ok) {
         setDashboardStats(data.summary);
@@ -120,7 +133,7 @@ const AppContent: React.FC = () => {
 
   const fetchVehicles = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/vehicles');
+      const res = await fetch(getApiUrl('/api/vehicles'));
       const data = await res.json();
       if (res.ok) {
         setVehicles(data);
@@ -132,7 +145,7 @@ const AppContent: React.FC = () => {
 
   const fetchAlerts = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/alerts');
+      const res = await fetch(getApiUrl('/api/alerts'));
       const data = await res.json();
       if (res.ok) {
         setAlerts(data);
@@ -149,7 +162,7 @@ const AppContent: React.FC = () => {
       fetchAlerts();
 
       // Setup WebSocket real-time telemetry connection
-      const socket = new WebSocket('ws://localhost:5000');
+      const socket = new WebSocket(getWsUrl());
       wsRef.current = socket;
 
       socket.onmessage = (event) => {
@@ -223,7 +236,7 @@ const AppContent: React.FC = () => {
   const handleResolveAlert = async (id: number) => {
     if (!token) return;
     try {
-      const res = await fetch('http://localhost:5000/api/alerts/resolve', {
+      const res = await fetch(getApiUrl('/api/alerts/resolve'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -244,7 +257,7 @@ const AppContent: React.FC = () => {
   const handleAddOrUpdateVehicle = async (payload: Vehicle) => {
     if (!token) return false;
     try {
-      const res = await fetch('http://localhost:5000/api/vehicle', {
+      const res = await fetch(getApiUrl('/api/vehicle'), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -266,7 +279,7 @@ const AppContent: React.FC = () => {
   const handleDeleteVehicle = async (id: string) => {
     if (!token) return false;
     try {
-      const res = await fetch('http://localhost:5000/api/vehicle', {
+      const res = await fetch(getApiUrl('/api/vehicle'), {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

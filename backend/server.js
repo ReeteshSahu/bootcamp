@@ -4,10 +4,12 @@ import { WebSocketServer } from 'ws';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { dbAll, dbGet, dbRun, initDb } from './db.js';
 import { startSimulation } from './simulation.js';
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'aeroshield_secure_token_secret_123456';
 
 const app = express();
@@ -334,6 +336,21 @@ app.post('/api/sensor', async (req, res) => {
   }
 });
 
+// Serve static assets from frontend/dist in production environments
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const frontendDistPath = path.join(__dirname, '../frontend/dist');
+
+app.use(express.static(frontendDistPath));
+
+// For SPA routing, redirect fallback to index.html (skip API / Ingestion paths)
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/sensor')) {
+    return next();
+  }
+  res.sendFile(path.join(frontendDistPath, 'index.html'));
+});
+
 // Boot Database, run Seed, start simulation and listen on PORT
 const init = async () => {
   try {
@@ -352,7 +369,7 @@ const init = async () => {
     startSimulation(wss);
 
     server.listen(PORT, () => {
-      console.log(`AeroShield Express backend running on http://localhost:${PORT}`);
+      console.log(`AeroShield Express server running on port ${PORT}`);
     });
   } catch (err) {
     console.error('Error starting backend:', err);

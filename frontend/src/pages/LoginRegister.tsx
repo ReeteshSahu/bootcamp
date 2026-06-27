@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { Mail, Lock, User, Shield, KeyRound, CheckCircle2 } from 'lucide-react';
 
+const getApiUrl = (path: string) => {
+  const base = window.location.hostname === 'localhost' ? 'http://localhost:5000' : window.location.origin;
+  return `${base}${path}`;
+};
+
 interface LoginRegisterProps {
   onLoginSuccess: (token: string, user: { name: string; email: string; role: string }) => void;
 }
@@ -26,7 +31,7 @@ const LoginRegister: React.FC<LoginRegisterProps> = ({ onLoginSuccess }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(getApiUrl('/api/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -52,7 +57,7 @@ const LoginRegister: React.FC<LoginRegisterProps> = ({ onLoginSuccess }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
+      const response = await fetch(getApiUrl('/api/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name, role }),
